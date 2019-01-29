@@ -42,7 +42,7 @@ public class AvalicacoesController {
 	}
 
 	@GetMapping("/livro/{id}")
-	public Avaliacao getAvaliacaoPorLivroId(@PathVariable Long id) {
+	public float getAvaliacaoPorLivroId(@PathVariable Long id) {
 		logger.info("getAvaliacaoPorLivroId: " + id);
 		throw new NotImplementedException();
 	}
