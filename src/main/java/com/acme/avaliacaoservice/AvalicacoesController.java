@@ -82,18 +82,18 @@ public class AvalicacoesController {
 			restTemplate.getForEntity(livroResourceUrl + avaliacao.getLivroId(), Livro.class);
 			logger.error("Livro " + avaliacao.getLivroId() + " localizado");
 		} catch (HttpClientErrorException ex) {
-			logger.error("Ocorreu um erro na comunicaÃ§Ã£o com o serviÃ§o de livros", ex);
+			logger.error("Ocorreu um erro na comunicação com o serviço de livros", ex);
 			if (ex.getRawStatusCode() == HttpStatus.NOT_FOUND.value()) {
 				throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-						"Livro vinculado a avaliaÃ§Ã£o nÃ£o foi encontrado.");
+						"Livro vinculado a avaliação não foi encontrado.");
 			} else {
 				throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
-						"Ocorreu um erro nÃ£o esperado na comunicaÃ§Ã£o com o serviÃ§o de livros: " + ex.getMessage());
+						"Ocorreu um erro não esperado na comunicação com o serviço de livros: " + ex.getMessage());
 			}
 		} catch (ResourceAccessException ex) {
-			logger.error("Ocorreu um erro na comunicaÃ§Ã£o com o serviÃ§o de livros", ex);
+			logger.error("Ocorreu um erro na comunicação com o serviço de livros", ex);
 			throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
-					"Ocorreu um erro nÃ£o esperado na comunicaÃ§Ã£o com o serviÃ§o de livros: " + ex.getMessage());
+					"Ocorreu um erro não esperado na comunicação com o serviço de livros: " + ex.getMessage());
 		}
 
 		return repository.save(avaliacao);
