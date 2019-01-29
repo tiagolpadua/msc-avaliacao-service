@@ -52,6 +52,13 @@ public class AvalicacoesController {
 		throw new RuntimeException("Não implementado");
 	}
 	
+	@DeleteMapping("/livro/{livroId}")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void deleteAvaliacaoPorLivroId(@PathVariable Long livroId) {
+		logger.info("deleteAvaliacaoPorLivroId: " + livroId);
+		repository.deleteAvaliacaoPorLivroId(livroId);
+	}
+	
 	private ClientHttpRequestFactory getClientHttpRequestFactory() {
 	    int timeout = 10000;
 	    HttpComponentsClientHttpRequestFactory clientHttpRequestFactory
