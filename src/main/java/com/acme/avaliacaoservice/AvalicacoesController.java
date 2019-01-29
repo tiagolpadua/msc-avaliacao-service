@@ -6,6 +6,8 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.client.ClientHttpRequestFactory;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -49,13 +51,23 @@ public class AvalicacoesController {
 		logger.info("getAvaliacaoPorLivroId: " + id);
 		throw new RuntimeException("Não implementado");
 	}
+	
+	private ClientHttpRequestFactory getClientHttpRequestFactory() {
+	    int timeout = 10000;
+	    HttpComponentsClientHttpRequestFactory clientHttpRequestFactory
+	      = new HttpComponentsClientHttpRequestFactory();
+	    clientHttpRequestFactory.setConnectTimeout(timeout);
+	    clientHttpRequestFactory.setConnectionRequestTimeout(timeout);
+	    clientHttpRequestFactory.setReadTimeout(timeout);
+	    return clientHttpRequestFactory;
+	}
 
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
 	public Avaliacao adicionarAvaliacao(@RequestBody Avaliacao avaliacao) throws IOException {
 		logger.info("adicionarAvaliacao: " + avaliacao);
 
-		RestTemplate restTemplate = new RestTemplate();
+		RestTemplate restTemplate = new RestTemplate(getClientHttpRequestFactory());
 		String livroResourceUrl = "http://localhost:8080/livros/";
 
 		try {
