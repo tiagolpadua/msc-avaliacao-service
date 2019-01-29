@@ -1,5 +1,6 @@
 package com.acme.avaliacaoservice;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -16,6 +17,9 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController
 @RequestMapping("/avaliacoes")
@@ -50,14 +54,15 @@ public class AvalicacoesController {
 
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	public Avaliacao adicionarAvaliacao(@RequestBody Avaliacao avalicacao) {
+	public Avaliacao adicionarAvaliacao(@RequestBody Avaliacao avalicacao) throws IOException {
 		logger.info("adicionarAvaliacao: " + avalicacao);
 
 		RestTemplate restTemplate = new RestTemplate();
 		String livroResourceUrl = "http://localhost:8080/livros/";
-		ResponseEntity<String> response = restTemplate.getForEntity(livroResourceUrl + avalicacao.getLivroId(), String.class);
 		
-		logger.info("response.getBody(): " + response.getBody());
+		ResponseEntity<Livro> responseLivro = restTemplate.getForEntity(livroResourceUrl + avalicacao.getLivroId(), Livro.class); 
+				
+		logger.info("responseLivro.getBody(): " + responseLivro.getBody());
 		
 		return repository.save(avalicacao);
 	}
