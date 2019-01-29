@@ -19,8 +19,6 @@ import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.sun.tools.sjavac.Log;
-
 @RestController
 @RequestMapping("/avaliacoes")
 public class AvalicacoesController {
