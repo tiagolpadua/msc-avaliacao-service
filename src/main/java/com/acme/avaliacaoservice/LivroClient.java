@@ -9,8 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-//@FeignClient(name = "livros", url = "http://localhost:8080", fallback = LivroClient.LivroClientFallback.class)
-@FeignClient(name = "livros", url = "http://localhost:8080", decode404 = true, fallback = LivroClient.LivroClientFallback.class)
+@FeignClient(name = "livro-service", decode404 = true, fallback = LivroClient.LivroClientFallback.class)
 public interface LivroClient {
 	@RequestMapping(method = RequestMethod.GET, value = "/livros")
 	List<Livro> getLivros();
