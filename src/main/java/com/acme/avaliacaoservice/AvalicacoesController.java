@@ -64,19 +64,11 @@ public class AvalicacoesController {
 	@ResponseStatus(HttpStatus.CREATED)
 	public Avaliacao adicionarAvaliacao(@RequestBody Avaliacao avaliacao) throws IOException {
 		logger.info("adicionarAvaliacao: " + avaliacao);
-
-		try {
-			String tituloLivro = livroClient.getLivroPorId(avaliacao.getLivroId()).getTitulo();
-			logger.info("Título do livro avaliado: " + tituloLivro);
-		} catch (FeignException ex) {
-			if (ex.status() == HttpStatus.NOT_FOUND.value()) {
-				throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-						"Livro não existe: " + avaliacao.getLivroId());
-			} else {
-				throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
-						"Ocorreu um erro ao consultar o título do livro: " + ex.getMessage());
-			}
+		String tituloLivro = livroClient.getLivroPorId(avaliacao.getLivroId()).getTitulo();
+		if (tituloLivro == null) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Livro não existe: " + avaliacao.getLivroId());
 		}
+		logger.info("Título do livro avaliado: " + tituloLivro);
 		return repository.save(avaliacao);
 	}
 
