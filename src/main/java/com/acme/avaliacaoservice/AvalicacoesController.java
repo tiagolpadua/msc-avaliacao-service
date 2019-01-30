@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import feign.FeignException;
+
 @RestController
 @RequestMapping("/avaliacoes")
 public class AvalicacoesController {
@@ -25,11 +27,11 @@ public class AvalicacoesController {
 
 	private final AvaliacaoRepository repository;
 
-	private final TituloLivroService tituloLivroService;
+	private final LivroClient livroClient;
 
-	AvalicacoesController(AvaliacaoRepository repository, TituloLivroService tituloLivroService) {
+	AvalicacoesController(AvaliacaoRepository repository, LivroClient livroClient) {
 		this.repository = repository;
-		this.tituloLivroService = tituloLivroService;
+		this.livroClient = livroClient;
 	}
 
 	@GetMapping
@@ -58,49 +60,23 @@ public class AvalicacoesController {
 		repository.deleteAvaliacaoPorLivroId(livroId);
 	}
 
-//	private ClientHttpRequestFactory getClientHttpRequestFactory() {
-//		int timeout = 10000;
-//		HttpComponentsClientHttpRequestFactory clientHttpRequestFactory = new HttpComponentsClientHttpRequestFactory();
-//		clientHttpRequestFactory.setConnectTimeout(timeout);
-//		clientHttpRequestFactory.setConnectionRequestTimeout(timeout);
-//		clientHttpRequestFactory.setReadTimeout(timeout);
-//		return clientHttpRequestFactory;
-//	}
-
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
 	public Avaliacao adicionarAvaliacao(@RequestBody Avaliacao avaliacao) throws IOException {
 		logger.info("adicionarAvaliacao: " + avaliacao);
 
-		String tituloLivro = tituloLivroService.getTitulo(avaliacao.getLivroId());
-		if (tituloLivro != null) {
+		try {
+			String tituloLivro = livroClient.getLivroPorId(avaliacao.getLivroId()).getTitulo();
 			logger.info("Título do livro avaliado: " + tituloLivro);
-		} else {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Livro não existe: " + avaliacao.getLivroId());
+		} catch (FeignException ex) {
+			if (ex.status() == HttpStatus.NOT_FOUND.value()) {
+				throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+						"Livro não existe: " + avaliacao.getLivroId());
+			} else {
+				throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
+						"Ocorreu um erro ao consultar o título do livro: " + ex.getMessage());
+			}
 		}
-
-//		RestTemplate restTemplate = new RestTemplate(getClientHttpRequestFactory());
-//		String livroResourceUrl = "http://localhost:8080/livros/";
-
-//		try {
-//			ResponseEntity<Livro> responseLivro = restTemplate.getForEntity(livroResourceUrl + avaliacao.getLivroId(),
-//					Livro.class);
-//			logger.info("Livro " + responseLivro.getBody().getTitulo() + " localizado");
-//		} catch (HttpClientErrorException ex) {
-//			logger.error("Ocorreu um erro na comunicação com o serviço de livros", ex);
-//			if (ex.getRawStatusCode() == HttpStatus.NOT_FOUND.value()) {
-//				throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-//						"Livro vinculado a avaliação não foi encontrado.");
-//			} else {
-//				throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
-//						"Ocorreu um erro não esperado na comunicação com o serviço de livros: " + ex.getMessage());
-//			}
-//		} catch (ResourceAccessException ex) {
-//			logger.error("Ocorreu um erro na comunicação com o serviço de livros", ex);
-//			throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
-//					"Ocorreu um erro não esperado na comunicação com o serviço de livros: " + ex.getMessage());
-//		}
-
 		return repository.save(avaliacao);
 	}
 
